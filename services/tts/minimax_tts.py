@@ -1,8 +1,6 @@
 import asyncio
 import json
-import struct
 import time
-import traceback
 from typing import Any, Dict, Optional, Set
 
 import async_timeout
@@ -10,7 +8,6 @@ import httpx
 from fastapi import WebSocket
 from loguru import logger
 
-from config import Config
 from services.tts.base import BaseTTSService
 
 
@@ -140,10 +137,10 @@ class MiniMaxTTSService(BaseTTSService):
                             if self.session_id is None:
                                 logger.error("session_id is None")
                                 return
-                                
+
                             session = get_session(self.session_id)
                             if session and session.is_interrupted():
-                                logger.info(f"会话已中断，停止TTS流")
+                                logger.info("会话已中断，停止TTS流")
                                 break
 
                             if len(chunk) == 0 or chunk == b"\n":
@@ -229,7 +226,7 @@ class MiniMaxTTSService(BaseTTSService):
                     if all_audio_data:
                         # 再次检查会话是否已中断
                         if session.is_interrupted():
-                            logger.info(f"会话已中断，跳过添加音频到队列")
+                            logger.info("会话已中断，跳过添加音频到队列")
                             return
 
                         item = {"audio_data": bytes(all_audio_data), "is_first": is_first, "text": text}
@@ -258,7 +255,7 @@ class MiniMaxTTSService(BaseTTSService):
         audio_chunk_count = 0
 
         try:
-            logger.info(f"音频处理队列任务已启动")
+            logger.info("音频处理队列任务已启动")
             while True:
                 # 获取下一个待发送项目
                 item = await self.send_queue.get()

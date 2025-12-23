@@ -1,7 +1,7 @@
+import asyncio
 import time
 import uuid
-import asyncio
-from typing import Dict, Optional, List, Any
+from typing import Any, Dict, List, Optional
 
 from loguru import logger
 
@@ -14,22 +14,22 @@ class SessionState:
     def __init__(self, session_id: Optional[str] = None) -> None:
         self.session_id = session_id or str(uuid.uuid4())
         self.last_activity = time.time()
-        
+
         # State flags
         self.is_processing_llm = False
         self.is_tts_active = False
         self.interrupt_requested = False
-        
+
         # Service components
         self.response_stream: Any = None
         self.tts_processor: Any = None
         self.asr_recognizer: Any = None
-        
+
         # Pipeline components
         self.asr_queue: asyncio.Queue[str] = asyncio.Queue()
         self.llm_queue: asyncio.Queue[str] = asyncio.Queue()
         self.tts_queue: asyncio.Queue[str] = asyncio.Queue()
-        
+
         # Tasks
         self.pipeline_tasks: List[asyncio.Task] = []
         self.current_llm_task: Optional[asyncio.Task] = None
@@ -56,7 +56,7 @@ class SessionState:
     def is_inactive(self, timeout_seconds: int = Config.SESSION_TIMEOUT) -> bool:
         """Check if session is inactive based on timeout"""
         return (time.time() - self.last_activity) > timeout_seconds
-        
+
     def _cancel_pipeline_tasks(self) -> None:
         """Cancel all pipeline tasks and clear queues"""
         # Cancel task lists
@@ -64,17 +64,17 @@ class SessionState:
             if not task.done():
                 task.cancel()
         self.pipeline_tasks.clear()
-        
+
         # Cancel individual tasks
         for task_attr in ['current_llm_task', 'current_tts_task']:
             task = getattr(self, task_attr)
             if task and not task.done():
                 task.cancel()
                 setattr(self, task_attr, None)
-            
+
         # Clear all queues
         self._clear_queues()
-    
+
     def _clear_queues(self) -> None:
         """Clear all pipeline queues"""
         for queue in [self.asr_queue, self.llm_queue, self.tts_queue]:
@@ -94,7 +94,7 @@ def get_session(session_id: str) -> SessionState:
     """Get or create session state"""
     if session_id not in _sessions:
         _sessions[session_id] = SessionState(session_id)
-    
+
     # Update activity timestamp
     _sessions[session_id].update_activity()
     return _sessions[session_id]
@@ -117,7 +117,7 @@ async def cleanup_inactive_sessions() -> None:
     while True:
         try:
             await asyncio.sleep(60)  # Check every minute
-            
+
             inactive_session_ids = [
                 session_id
                 for session_id, state in _sessions.items()
@@ -131,9 +131,9 @@ async def cleanup_inactive_sessions() -> None:
                         await _sessions[session_id].tts_processor.interrupt()
                 except Exception as e:
                     logger.error(f"Error interrupting TTS processor: {e}")
-                
+
                 remove_session(session_id)
 
         except Exception as e:
             logger.error(f"Session cleanup error: {e}")
-            await asyncio.sleep(60) 
+            await asyncio.sleep(60)

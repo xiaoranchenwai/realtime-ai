@@ -1,7 +1,7 @@
 import asyncio
 import sys
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator, Dict, Any
+from typing import AsyncGenerator, Dict
 
 import uvicorn
 from fastapi import FastAPI, WebSocket
@@ -9,9 +9,8 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from loguru import logger
 
-from config import Config
-from session import cleanup_inactive_sessions
 from services.tts import close_all_tts_services
+from session import cleanup_inactive_sessions
 from websocket.handler import handle_websocket_connection
 
 
@@ -48,15 +47,15 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 def create_app() -> FastAPI:
     """Create and configure the FastAPI application"""
     app = FastAPI(title="Realtime AI Chat API", lifespan=lifespan)
-    
+
     # Register routes
     app.add_api_websocket_route("/ws", websocket_endpoint)
     app.add_api_route("/", get_root, response_class=HTMLResponse)
     app.add_api_route("/health", health_check)
-    
+
     # Serve static files
     app.mount("/static", StaticFiles(directory="static"), name="static")
-    
+
     return app
 
 
@@ -67,7 +66,7 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
 
 async def get_root() -> HTMLResponse:
     """Return the main page HTML"""
-    with open("static/index.html", "r", encoding="utf-8") as f:
+    with open("static/index.html", encoding="utf-8") as f:
         return HTMLResponse(content=f.read())
 
 

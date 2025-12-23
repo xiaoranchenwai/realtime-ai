@@ -3,7 +3,6 @@ from abc import ABC, abstractmethod
 from typing import Optional
 
 from fastapi import WebSocket
-from loguru import logger
 
 
 class BaseASRService(ABC):

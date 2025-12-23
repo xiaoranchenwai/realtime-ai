@@ -1,11 +1,11 @@
 import asyncio
-from typing import Any, AsyncGenerator, Dict, List, Optional
+from typing import AsyncGenerator, Optional
 
 import async_timeout
 from loguru import logger
 from openai import AsyncOpenAI
-from openai.types.chat import ChatCompletionChunk
 from openai._streaming import AsyncStream
+from openai.types.chat import ChatCompletionChunk
 
 from config import Config
 from services.llm.base import BaseLLMService

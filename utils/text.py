@@ -29,18 +29,18 @@ def process_streaming_text(chunk: str, current_buffer: str = "") -> Tuple[List[s
     """
     # Add new chunk to buffer
     text_buffer = current_buffer + chunk
-    
+
     # Define sentence endings (same as in split_into_sentences)
     sentence_endings = ["。", "！", "？", ".", "!", "?", "，", ",", "、", ";", "；", ":", "："]
-    
+
     # Check if we have any sentence endings
     if not any(end in text_buffer for end in sentence_endings):
         # No complete sentences yet
         return [], text_buffer
-        
+
     # Split into sentences
     sentences = split_into_sentences(text_buffer)
-    
+
     # Check if last part is a complete sentence
     if text_buffer.endswith(tuple(sentence_endings)):
         # All text forms complete sentences

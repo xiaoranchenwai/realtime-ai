@@ -1,6 +1,6 @@
 import asyncio
 import threading
-from typing import Callable, Optional, Any
+from typing import Optional
 
 import azure.cognitiveservices.speech as speechsdk
 from loguru import logger
@@ -235,9 +235,10 @@ class AzureASRService(BaseASRService):
 
             # 通知主线程有错误
             if self.loop:
+                error_msg = str(e)
 
                 async def send_error() -> None:
-                    await self.send_error(f"连续识别启动错误: {str(e)}")
+                    await self.send_error(f"连续识别启动错误: {error_msg}")
                     self.is_recognizing = False
 
                 asyncio.run_coroutine_threadsafe(send_error(), self.loop)
@@ -277,8 +278,9 @@ class AzureASRService(BaseASRService):
 
             # 通知主线程有错误
             if self.loop:
+                error_msg = str(e)
 
                 async def send_status() -> None:
-                    await self.send_error(f"连续识别停止错误: {str(e)}")
+                    await self.send_error(f"连续识别停止错误: {error_msg}")
 
                 asyncio.run_coroutine_threadsafe(send_status(), self.loop)

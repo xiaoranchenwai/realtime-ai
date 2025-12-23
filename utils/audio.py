@@ -1,6 +1,6 @@
 import struct
 import time
-from typing import Tuple, Optional, Any
+from typing import Any, Optional, Tuple
 
 from loguru import logger
 

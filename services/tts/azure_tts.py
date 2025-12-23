@@ -1,5 +1,4 @@
 import asyncio
-import json
 import time
 from typing import Any, Dict, Optional, Set
 
@@ -112,10 +111,10 @@ class AzureTTSService(BaseTTSService):
                 if self.session_id is None:
                     logger.error("session_id is None")
                     return
-                    
+
                 session = get_session(self.session_id)
                 if session and session.is_interrupted():
-                    logger.info(f"会话已中断，跳过添加音频到队列")
+                    logger.info("会话已中断，跳过添加音频到队列")
                     return
 
                 # 将音频数据加入发送队列
@@ -156,7 +155,7 @@ class AzureTTSService(BaseTTSService):
                     logger.error("session_id is None")
                     self.send_queue.task_done()
                     continue
-                    
+
                 session = get_session(self.session_id)
                 if session and session.is_interrupted():
                     logger.info(f"会话已中断，跳过音频发送: {text[:30]}...")

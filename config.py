@@ -19,7 +19,7 @@ class Config:
     # ASR settings
     ASR_LANGUAGE = os.getenv("ASR_LANGUAGE", "en-US")
     VOICE_ENERGY_THRESHOLD = float(os.getenv("VOICE_ENERGY_THRESHOLD", "0.05"))
-    
+
     # Azure Speech service
     AZURE_SPEECH_KEY = os.getenv("AZURE_SPEECH_KEY")
     AZURE_SPEECH_REGION = os.getenv("AZURE_SPEECH_REGION")
@@ -51,19 +51,19 @@ class Config:
     def _validate_provider_config(cls) -> Dict[str, bool]:
         """Validate provider-specific configurations"""
         validation_results = {}
-        
+
         # Azure Speech validation (ASR/TTS)
         azure_credentials_valid = cls.AZURE_SPEECH_KEY and cls.AZURE_SPEECH_REGION
         validation_results["azure"] = azure_credentials_valid
-        
+
         # OpenAI validation
         openai_valid = bool(cls.OPENAI_API_KEY)
         validation_results["openai"] = openai_valid
-        
+
         # MiniMax validation
         minimax_valid = bool(cls.MINIMAX_API_KEY)
         validation_results["minimax"] = minimax_valid
-        
+
         return validation_results
 
     @classmethod
@@ -71,7 +71,7 @@ class Config:
         """Validate required configuration"""
         validation_errors = []
         provider_validations = cls._validate_provider_config()
-        
+
         # Check ASR provider configuration
         if cls.ASR_PROVIDER == "azure" and not provider_validations["azure"]:
             validation_errors.append(
@@ -99,7 +99,7 @@ class Config:
             for error in validation_errors:
                 logger.error(error)
             return False
-        
+
         logger.info("Configuration validated successfully")
         return True
 
@@ -107,19 +107,19 @@ class Config:
     def get_service_config(cls, service_type: str) -> Dict[str, Any]:
         """Get provider-specific configuration for a service type"""
         config = {"provider": getattr(cls, f"{service_type.upper()}_PROVIDER")}
-        
+
         if service_type.upper() == "ASR":
             config.update({
                 "language": cls.ASR_LANGUAGE,
                 "energy_threshold": cls.VOICE_ENERGY_THRESHOLD,
             })
-            
+
             if config["provider"] == "azure":
                 config.update({
                     "speech_key": cls.AZURE_SPEECH_KEY,
                     "speech_region": cls.AZURE_SPEECH_REGION,
                 })
-                
+
         elif service_type.upper() == "LLM":
             if config["provider"] == "openai":
                 config.update({
@@ -128,7 +128,7 @@ class Config:
                     "model": cls.OPENAI_MODEL,
                     "system_prompt": cls.OPENAI_SYSTEM_PROMPT,
                 })
-                
+
         elif service_type.upper() == "TTS":
             if config["provider"] == "azure":
                 config.update({
@@ -141,7 +141,7 @@ class Config:
                     "api_key": cls.MINIMAX_API_KEY,
                     "voice_id": cls.MINIMAX_VOICE_ID,
                 })
-                
+
         return config
 
 

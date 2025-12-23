@@ -1,11 +1,11 @@
 import asyncio
-from typing import Optional, Any
-from loguru import logger
-from fastapi import WebSocket
 
-from session import SessionState
+from fastapi import WebSocket
+from loguru import logger
+
 from services.llm import create_llm_service
 from services.tts import create_tts_service
+from session import SessionState
 from utils.text import process_streaming_text
 
 
@@ -37,12 +37,12 @@ class PipelineHandler:
 
                 asr_result = await self.session.asr_queue.get()
                 logger.info(f"ASR result: {asr_result}")
-                
+
                 await self._cancel_tts_tasks()
                 await self._send_websocket_message("tts_stop")
                 await self.session.llm_queue.put(asr_result)
                 self.session.asr_queue.task_done()
-                
+
             except asyncio.CancelledError:
                 break
             except Exception as e:
@@ -54,7 +54,7 @@ class PipelineHandler:
         if self.session.current_tts_task and not self.session.current_tts_task.done():
             self.session.current_tts_task.cancel()
             logger.info("Cancelling current TTS task")
-        
+
         # Clear TTS queue
         while not self.session.tts_queue.empty():
             try:
@@ -71,18 +71,18 @@ class PipelineHandler:
                     break
 
                 text = await self.session.llm_queue.get()
-                
+
                 # Cancel current LLM task if exists
                 if self.session.current_llm_task and not self.session.current_llm_task.done():
                     self.session.current_llm_task.cancel()
-                
+
                 # Create new LLM task
                 self.session.current_llm_task = asyncio.create_task(
                     self._process_llm_response(text)
                 )
-                
+
                 self.session.llm_queue.task_done()
-                
+
             except asyncio.CancelledError:
                 break
             except Exception as e:
@@ -102,38 +102,38 @@ class PipelineHandler:
             collected_response = ""
             current_subtitle = ""
             sentence_buffer = ""
-            
+
             async for chunk in self.llm_service.generate_response(text):
                 if self.session.is_interrupted():
                     break
 
                 collected_response += chunk
                 current_subtitle += chunk
-                
+
                 # Process streaming text and extract complete sentences
                 complete_sentences, sentence_buffer = process_streaming_text(chunk, sentence_buffer)
-                
+
                 # Update subtitle in real-time
                 await self._send_websocket_message(
-                    "subtitle", 
-                    content=current_subtitle, 
+                    "subtitle",
+                    content=current_subtitle,
                     is_complete=False
                 )
-                
+
                 # Process complete sentences for TTS
                 for sentence in complete_sentences:
                     logger.info(f"LLM generated sentence: {sentence}")
                     await self._send_websocket_message(
-                        "subtitle", 
-                        content=sentence, 
+                        "subtitle",
+                        content=sentence,
                         is_complete=True
                     )
                     await self.session.tts_queue.put(sentence)
 
                 # Send streaming LLM response
                 await self._send_websocket_message(
-                    "llm_response", 
-                    content=collected_response, 
+                    "llm_response",
+                    content=collected_response,
                     is_complete=False
                 )
 
@@ -141,8 +141,8 @@ class PipelineHandler:
             if sentence_buffer and not self.session.is_interrupted():
                 logger.info(f"LLM final sentence: {sentence_buffer}")
                 await self._send_websocket_message(
-                    "subtitle", 
-                    content=sentence_buffer, 
+                    "subtitle",
+                    content=sentence_buffer,
                     is_complete=True
                 )
                 await self.session.tts_queue.put(sentence_buffer)
@@ -150,8 +150,8 @@ class PipelineHandler:
             # Send final complete response
             if not self.session.is_interrupted():
                 await self._send_websocket_message(
-                    "llm_response", 
-                    content=collected_response, 
+                    "llm_response",
+                    content=collected_response,
                     is_complete=True
                 )
 
@@ -171,20 +171,20 @@ class PipelineHandler:
 
                 # Wait for previous TTS to complete
                 await self.tts_completion_event.wait()
-                
+
                 sentence = await self.session.tts_queue.get()
                 logger.info(f"TTS processing sentence: {sentence}")
-                
+
                 # Clear the event to prevent next sentence from starting
                 self.tts_completion_event.clear()
-                
+
                 # Create new TTS task
                 self.session.current_tts_task = asyncio.create_task(
                     self._synthesize_speech(sentence)
                 )
-                
+
                 self.session.tts_queue.task_done()
-                
+
             except asyncio.CancelledError:
                 break
             except Exception as e:
@@ -200,11 +200,11 @@ class PipelineHandler:
 
             self.session.is_tts_active = True
             logger.info(f"Starting TTS synthesis: {text}")
-            
+
             await self._send_websocket_message("tts_start", format="pcm")
             await self.tts_processor.synthesize_text(text, self.websocket)
             await self._send_websocket_message("tts_end")
-            
+
             logger.info(f"TTS synthesis completed: {text}")
 
         except asyncio.CancelledError:
@@ -230,4 +230,4 @@ class PipelineHandler:
         """Cleanup pipeline resources"""
         self.session._cancel_pipeline_tasks()
         if self.tts_processor:
-            await self.tts_processor.close() 
+            await self.tts_processor.close()
