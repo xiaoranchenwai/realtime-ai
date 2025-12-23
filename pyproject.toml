@@ -1,0 +1,135 @@
+[project]
+name = "realtime-ai"
+version = "0.1.0"
+description = "Real-time AI voice conversation platform with WebSocket"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.8"
+authors = [
+    { name = "chicogong" }
+]
+keywords = [
+    "realtime",
+    "voice",
+    "ai",
+    "websocket",
+    "stt",
+    "tts",
+    "llm",
+    "fastapi"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "fastapi>=0.109.0",
+    "uvicorn>=0.25.0",
+    "python-dotenv>=1.0.0",
+    "azure-cognitiveservices-speech>=1.31.0",
+    "httpx>=0.25.2",
+    "openai>=1.11.0",
+    "async-timeout>=4.0.3",
+    "websockets>=11.0.3",
+    "loguru>=0.7.3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "mypy>=1.15.0",
+    "typing-inspection>=0.4.0",
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",
+    "ruff>=0.1.0",
+    "pre-commit>=3.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/chicogong/realtime-ai"
+Repository = "https://github.com/chicogong/realtime-ai"
+Issues = "https://github.com/chicogong/realtime-ai/issues"
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["services*", "websocket*", "utils*"]
+
+# Black - Code formatter
+[tool.black]
+line-length = 120
+target-version = ["py38", "py39", "py310", "py311", "py312"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.mypy_cache
+    | \.pytest_cache
+    | \.venv
+    | venv
+    | __pycache__
+    | dist
+    | build
+)/
+'''
+
+# isort - Import sorting
+[tool.isort]
+profile = "black"
+line_length = 120
+skip = [".git", ".mypy_cache", ".pytest_cache", "venv", "__pycache__"]
+
+# Ruff - Fast linter
+[tool.ruff]
+line-length = 120
+target-version = "py38"
+exclude = [
+    ".git",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".venv",
+    "venv",
+    "__pycache__",
+    "dist",
+    "build",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501",  # line too long (handled by black)
+    "B008",  # do not perform function calls in argument defaults
+]
+
+# Mypy - Type checking
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+ignore_missing_imports = true
+
+# Pytest
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
