@@ -138,38 +138,48 @@ graph LR
 ## 安装与设置
 
 1. 克隆代码库
-2. 安装依赖: `pip install -r requirements.txt`
-3. 创建`.env`文件，设置以下变量:
-
-```
-# Azure语音服务
-AZURE_SPEECH_KEY=你的密钥
-AZURE_SPEECH_REGION=你的区域
-
-# OpenAI或兼容API
-OPENAI_API_KEY=你的API密钥
-OPENAI_BASE_URL=https://api.openai.com/v1  # 可选：自定义OpenAI兼容的API基础URL
-OPENAI_MODEL=gpt-3.5-turbo
+```bash
+git clone https://github.com/chicogong/realtime-ai.git
+cd realtime-ai
 ```
 
-4. 运行应用: `python app.py`
-5. 在浏览器中打开`http://localhost:8000`
+2. 安装依赖
+```bash
+pip install -r requirements.txt
+```
+
+3. 配置环境变量
+```bash
+cp .env.example .env
+# 编辑 .env 文件，填入你的 API 密钥
+```
+
+4. 运行应用
+```bash
+python app.py
+```
+
+5. 在浏览器中打开 `http://localhost:8000`
 
 ## 项目结构
 
-- `app.py` - 应用程序入口点
-- `config.py` - 配置设置
-- `models/` - 数据模型，包括会话管理
-- `services/` - 服务模块
-  - `asr/` - 语音识别服务
-  - `llm/` - 语言模型服务
-  - `tts/` - 文本到语音服务
-  - `websocket/` - WebSocket处理
-- `static/` - 前端资源
-  - `css/` - 样式表
-  - `js/` - JavaScript文件
-  - `index.html` - 主HTML界面
-- `utils/` - 工具函数
+```
+├── app.py              # 应用程序入口点
+├── config.py           # 配置设置
+├── session.py          # 会话管理
+├── services/           # 服务模块
+│   ├── asr/            # 语音识别服务
+│   ├── llm/            # 语言模型服务
+│   └── tts/            # 文本到语音服务
+├── websocket/          # WebSocket 处理
+│   ├── handler.py      # 连接处理
+│   └── pipeline.py     # 处理管道
+├── static/             # 前端资源
+│   ├── css/            # 样式表
+│   ├── js/             # JavaScript 文件
+│   └── index.html      # 主界面
+└── utils/              # 工具函数
+```
 
 ## 功能特点
 
@@ -179,6 +189,10 @@ OPENAI_MODEL=gpt-3.5-turbo
 - 打断检测
 - 自然对话流程
 
+## 贡献
+
+欢迎贡献！请查看 [贡献指南](CONTRIBUTING.md)。
+
 ## 许可证
 
-MIT
+[MIT](LICENSE)

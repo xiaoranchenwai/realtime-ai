@@ -138,21 +138,27 @@ In addition to JSON messages, the system transmits binary audio data via WebSock
 ## Installation
 
 1. Clone the repository
-2. Install dependencies: `pip install -r requirements.txt`
-3. Create `.env` file with the following variables:
-
 ```bash
-# Azure Speech Service
-AZURE_SPEECH_KEY=your_key
-AZURE_SPEECH_REGION=your_region
-
-# OpenAI or Compatible API
-OPENAI_API_KEY=your_api_key
-OPENAI_BASE_URL=https://api.openai.com/v1  # Optional: custom base URL
-OPENAI_MODEL=gpt-3.5-turbo
+git clone https://github.com/chicogong/realtime-ai.git
+cd realtime-ai
 ```
 
-4. Run the application: `python app.py`
+2. Install dependencies
+```bash
+pip install -r requirements.txt
+```
+
+3. Configure environment variables
+```bash
+cp .env.example .env
+# Edit .env file with your API keys
+```
+
+4. Run the application
+```bash
+python app.py
+```
+
 5. Open `http://localhost:8000` in your browser
 
 ## Project Structure
@@ -183,6 +189,10 @@ OPENAI_MODEL=gpt-3.5-turbo
 - Interruption detection
 - Natural conversation flow
 
+## Contributing
+
+Contributions are welcome! Please see the [Contributing Guide](CONTRIBUTING.md).
+
 ## License
 
-MIT
+[MIT](LICENSE)
