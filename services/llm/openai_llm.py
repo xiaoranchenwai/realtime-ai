@@ -5,8 +5,6 @@ import async_timeout
 from loguru import logger
 from openai import AsyncOpenAI
 from openai.types.chat import ChatCompletionChunk
-from openai.types.chat.chat_completion_chunk import ChatCompletionChunk
-from openai.types.chat.completion_create_params import CompletionCreateParamsStreaming
 from openai._streaming import AsyncStream
 
 from config import Config
