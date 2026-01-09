@@ -57,6 +57,8 @@ class TestConfig:
         assert "azure" in result
         assert "openai" in result
         assert "minimax" in result
+        assert "funasr" in result
+        assert "cosyvoice" in result
 
     def test_voice_energy_threshold_is_float(self) -> None:
         """Test VOICE_ENERGY_THRESHOLD is a float"""
@@ -155,6 +157,20 @@ class TestConfigServiceConfig:
                     assert "speech_key" in config
                     assert "speech_region" in config
 
+    def test_get_asr_config_funasr(self) -> None:
+        """Test ASR config for FunASR provider"""
+        from config import Config
+
+        with patch.object(Config, "ASR_PROVIDER", "funasr"):
+            with patch.object(Config, "FUNASR_MODEL", "paraformer-zh-streaming"):
+                with patch.object(Config, "FUNASR_CHUNK_SIZE", [0, 10, 5]):
+                    with patch.object(Config, "FUNASR_ENCODER_CHUNK_LOOK_BACK", 4):
+                        with patch.object(Config, "FUNASR_DECODER_CHUNK_LOOK_BACK", 1):
+                            config = Config.get_service_config("asr")
+                            assert config["provider"] == "funasr"
+                            assert config["model"] == "paraformer-zh-streaming"
+                            assert config["chunk_size"] == [0, 10, 5]
+
     def test_get_llm_config_openai(self) -> None:
         """Test LLM config for OpenAI provider"""
         from config import Config
@@ -193,6 +209,21 @@ class TestConfigServiceConfig:
                     assert config["provider"] == "minimax"
                     assert "api_key" in config
                     assert "voice_id" in config
+
+    def test_get_tts_config_cosyvoice(self) -> None:
+        """Test TTS config for CosyVoice provider"""
+        from config import Config
+
+        with patch.object(Config, "TTS_PROVIDER", "cosyvoice"):
+            with patch.object(Config, "COSYVOICE_MODEL_DIR", "pretrained_models/Fun-CosyVoice3-0.5B"):
+                with patch.object(Config, "COSYVOICE_PROMPT_TEXT", "prompt"):
+                    with patch.object(Config, "COSYVOICE_PROMPT_WAV", "./asset/zero_shot_prompt.wav"):
+                        with patch.object(Config, "COSYVOICE_INFERENCE_MODE", "zero_shot"):
+                            with patch.object(Config, "COSYVOICE_INSTRUCT_PROMPT", "prompt"):
+                                config = Config.get_service_config("tts")
+                                assert config["provider"] == "cosyvoice"
+                                assert config["model_dir"] == "pretrained_models/Fun-CosyVoice3-0.5B"
+                                assert config["prompt_wav"] == "./asset/zero_shot_prompt.wav"
 
     def test_get_unknown_service_config(self) -> None:
         """Test getting config for unknown service type raises error"""

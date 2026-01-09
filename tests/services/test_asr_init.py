@@ -72,3 +72,22 @@ class TestCreateASRService:
 
         result = create_asr_service()
         assert result is None
+
+    @patch("services.asr.FunASRService")
+    @patch("services.asr.Config")
+    def test_create_funasr_success(self, mock_config: MagicMock, mock_funasr_service: MagicMock) -> None:
+        """Test successful FunASR creation"""
+        mock_config.ASR_PROVIDER = "funasr"
+        mock_config.FUNASR_MODEL = "paraformer-zh-streaming"
+        mock_config.FUNASR_CHUNK_SIZE = [0, 10, 5]
+        mock_config.FUNASR_ENCODER_CHUNK_LOOK_BACK = 4
+        mock_config.FUNASR_DECODER_CHUNK_LOOK_BACK = 1
+        mock_config.ASR_LANGUAGE = "zh-CN"
+
+        mock_instance = MagicMock()
+        mock_funasr_service.return_value = mock_instance
+
+        from services.asr import create_asr_service
+
+        result = create_asr_service()
+        assert result == mock_instance

@@ -5,6 +5,7 @@ from loguru import logger
 from config import Config
 from services.asr.azure_asr import AzureASRService
 from services.asr.base import BaseASRService
+from services.asr.funasr_asr import FunASRService
 
 
 def create_asr_service() -> Optional[BaseASRService]:
@@ -24,9 +25,15 @@ def create_asr_service() -> Optional[BaseASRService]:
                 region=Config.AZURE_SPEECH_REGION,
                 language=Config.ASR_LANGUAGE,
             )
-        # 未来可以在这里添加其他ASR提供商的支持
-        # elif Config.ASR_PROVIDER == "other_provider":
-        #     return OtherASRService(...)
+        if Config.ASR_PROVIDER == "funasr":
+            logger.info("创建FunASR服务")
+            return FunASRService(
+                model_name=Config.FUNASR_MODEL,
+                chunk_size=Config.FUNASR_CHUNK_SIZE,
+                encoder_chunk_look_back=Config.FUNASR_ENCODER_CHUNK_LOOK_BACK,
+                decoder_chunk_look_back=Config.FUNASR_DECODER_CHUNK_LOOK_BACK,
+                language=Config.ASR_LANGUAGE,
+            )
         else:
             logger.error(f"不支持的ASR提供商: {Config.ASR_PROVIDER}")
             return None

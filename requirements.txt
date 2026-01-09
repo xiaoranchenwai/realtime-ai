@@ -7,6 +7,10 @@ openai>=1.11.0
 async-timeout>=4.0.3
 websockets>=11.0.3
 loguru>=0.7.3
+funasr>=1.0.0
+numpy>=1.24.0
+torch>=2.0.0
+torchaudio>=2.0.0
 
 # 开发依赖（本地开发和类型检查用）
 mypy>=1.15.0
