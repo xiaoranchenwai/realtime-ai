@@ -5,6 +5,7 @@ from loguru import logger
 from config import Config
 from services.tts.azure_tts import AzureTTSService
 from services.tts.base import BaseTTSService
+from services.tts.cosyvoice_tts import CosyVoiceTTSService
 from services.tts.minimax_tts import MiniMaxTTSService
 
 
@@ -36,6 +37,18 @@ def create_tts_service(session_id: Optional[str] = None) -> Optional[BaseTTSServ
                 logger.error("MiniMax TTS配置缺失")
                 return None
             tts_service = MiniMaxTTSService(api_key=Config.MINIMAX_API_KEY, voice_id=Config.MINIMAX_VOICE_ID)
+        elif Config.TTS_PROVIDER == "cosyvoice":
+            logger.info("创建CosyVoice3 TTS服务")
+            if not Config.COSYVOICE_MODEL_DIR or not Config.COSYVOICE_PROMPT_WAV:
+                logger.error("CosyVoice3 TTS配置缺失")
+                return None
+            tts_service = CosyVoiceTTSService(
+                model_dir=Config.COSYVOICE_MODEL_DIR,
+                prompt_text=Config.COSYVOICE_PROMPT_TEXT,
+                prompt_wav=Config.COSYVOICE_PROMPT_WAV,
+                inference_mode=Config.COSYVOICE_INFERENCE_MODE,
+                instruct_prompt=Config.COSYVOICE_INSTRUCT_PROMPT,
+            )
         # 未来可以在这里添加其他TTS提供商的支持
         # elif Config.TTS_PROVIDER == "other_provider":
         #     tts_service = OtherTTSService(...)
@@ -59,4 +72,6 @@ async def close_all_tts_services() -> None:
         await AzureTTSService.close_all()
     elif Config.TTS_PROVIDER == "minimax":
         await MiniMaxTTSService.close_all()
+    elif Config.TTS_PROVIDER == "cosyvoice":
+        await CosyVoiceTTSService.close_all()
     # 未来可以在这里添加其他TTS提供商的清理代码
